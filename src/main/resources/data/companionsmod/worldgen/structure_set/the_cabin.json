@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "companionsmod:the_cabin",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "salt": 5464633448,
+    "spacing": 20,
+    "separation": 12,
+    "type": "minecraft:random_spread"
+  }
+}

@@ -1,4 +1,4 @@
-package net.quendy.seylacmod;
+package net.quendy.companionsmod;
 
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
@@ -12,22 +12,27 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.quendy.companionsmod.block.ModBlocks;
+import net.quendy.companionsmod.item.ModCreativeModTabs;
+import net.quendy.companionsmod.item.ModItems;
 import org.slf4j.Logger;
 
-@Mod(SeylacMod.MOD_ID)
-public class SeylacMod {
-    public static final String MOD_ID = "seylac_mod";
+@Mod(CompanionsMod.MOD_ID)
+public class CompanionsMod {
+    public static final String MOD_ID = "companionsmod";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public SeylacMod(FMLJavaModLoadingContext context) {
+    public CompanionsMod(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
+
+        ModCreativeModTabs.register(modEventBus);
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
         modEventBus.addListener(this::addCreative);
-
-        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
