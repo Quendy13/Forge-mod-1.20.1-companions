@@ -13,11 +13,12 @@ import net.quendy.companionsmod.block.ModBlocks;
 public class ModCreativeModTabs {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, CompanionsMod.MOD_ID);
 
-    public static final RegistryObject<CreativeModeTab> FANTASY_TAB = CREATIVE_MODE_TABS.register("seylac_goblin_tab",
+    public static final RegistryObject<CreativeModeTab> FANTASY_TAB = CREATIVE_MODE_TABS.register("companions_tab",
             () -> CreativeModeTab.builder()
                     .icon(() -> new ItemStack(ModBlocks.ROSE.get()))
                     .title(Component.translatable("creativetab.companions_tab"))
                     .displayItems((pParameters, pOutput) -> {
+                        pOutput.accept(ModItems.PRISTINE_BLADE.get());
                         pOutput.accept(ModBlocks.ROSE.get());
                     })
                     .build());
