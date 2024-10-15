@@ -1,6 +1,7 @@
 package net.quendy.companionsmod;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -13,6 +14,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.quendy.companionsmod.block.ModBlocks;
+import net.quendy.companionsmod.entity.ModEntities;
+import net.quendy.companionsmod.entity.client.GlaiveMaidenRenderer;
 import net.quendy.companionsmod.item.ModCreativeModTabs;
 import net.quendy.companionsmod.item.ModItems;
 import org.slf4j.Logger;
@@ -49,6 +52,7 @@ public class CompanionsMod {
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
+            EntityRenderers.register(ModEntities.GLAIVE_MAIDEN.get(), GlaiveMaidenRenderer::new);
         }
     }
 }
