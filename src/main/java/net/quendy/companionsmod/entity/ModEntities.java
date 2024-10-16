@@ -15,7 +15,7 @@ public class ModEntities {
 
     public static final RegistryObject<EntityType<GlaiveMaidenEntity>> GLAIVE_MAIDEN =
             ENTITY_TYPES.register("glaive_maiden", () -> EntityType.Builder.of(GlaiveMaidenEntity::new, MobCategory.CREATURE)
-                    .sized(0.7f, 1.0f).build("glaive_maiden"));
+                    .sized(1.0F, 1.0F).build("glaive_maiden"));
 
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);

@@ -19,7 +19,10 @@ public class ModCreativeModTabs {
                     .title(Component.translatable("creativetab.companions_tab"))
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(ModItems.PRISTINE_BLADE.get());
+
                         pOutput.accept(ModBlocks.ROSE.get());
+
+                        pOutput.accept(ModItems.GLAIVE_MAIDEN_SPAWN_EGG.get());
                     })
                     .build());
 

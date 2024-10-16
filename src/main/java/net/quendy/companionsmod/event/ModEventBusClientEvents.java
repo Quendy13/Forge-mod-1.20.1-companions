@@ -5,6 +5,7 @@ import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.quendy.companionsmod.CompanionsMod;
+//import net.quendy.companionsmod.entity.client.GlaiveMaidenModel;
 import net.quendy.companionsmod.entity.client.GlaiveMaidenModel;
 import net.quendy.companionsmod.entity.client.ModModelLayers;
 

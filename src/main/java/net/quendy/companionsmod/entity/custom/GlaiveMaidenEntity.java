@@ -15,9 +15,10 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.quendy.companionsmod.entity.ModEntities;
 import org.jetbrains.annotations.Nullable;
 
 public class GlaiveMaidenEntity extends TamableAnimal {
@@ -34,33 +35,42 @@ public class GlaiveMaidenEntity extends TamableAnimal {
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
 
-    public final AnimationState attackAnimationState = new AnimationState();
-    public int attackAnimationTimeout = 0;
+    //public final AnimationState attackAnimationState = new AnimationState();
+    //public int attackAnimationTimeout = 0;
+
+    @Override
+    public void tick() {
+        super.tick();
+
+        if(this.level().isClientSide()) {
+            setupAnimationStates();
+        }
+    }
 
     private void setupAnimationStates() {
         if(this.idleAnimationTimeout <= 0) {
-            this.idleAnimationTimeout = this.random.nextInt(40) + 80; //TODO : modifier temps
+            this.idleAnimationTimeout = this.random.nextInt(40) + 80;
             this.idleAnimationState.start(this.tickCount);
         } else {
             --this.idleAnimationTimeout;
         }
 
-        if (this.isAttacking() && attackAnimationTimeout <= 0) {
-            attackAnimationTimeout = 8;  //TODO : modifier temps
-            attackAnimationState.start(this.tickCount);
-        } else {
-            --this.attackAnimationTimeout;
-        }
-
-        if (!this.isAttacking()) {
-            attackAnimationState.stop();
-        }
+//        if (this.isAttacking() && attackAnimationTimeout <= 0) {
+//            attackAnimationTimeout = 8;  //TODO : modifier temps
+//            attackAnimationState.start(this.tickCount);
+//        } else {
+//            --this.attackAnimationTimeout;
+//        }
+//
+//        if (!this.isAttacking()) {
+//            attackAnimationState.stop();
+//        }
     }
 
     @Override
     protected void updateWalkAnimation(float pPartialTick) {
         float f;
-        if(this.getPose() == Pose.STANDING) {
+        if (this.getPose() == Pose.STANDING) {
             f = Math.min(pPartialTick * 6F, 1f);
         } else {
             f = 0f;
@@ -80,7 +90,12 @@ public class GlaiveMaidenEntity extends TamableAnimal {
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel pLevel, AgeableMob pOtherParent) {
-        return null;
+        return ModEntities.GLAIVE_MAIDEN.get().create(pLevel);
+    }
+
+    //TODO: changer pour un autre type de nourriture
+    public boolean isFood(ItemStack pStack) {
+        return pStack.is(Items.SUGAR);
     }
 
     @Override
@@ -91,7 +106,7 @@ public class GlaiveMaidenEntity extends TamableAnimal {
         //FollowOwner 4
         this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.1D));
         //BegGoal 6
-        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 2f));
+        this.goalSelector.addGoal(7, new LookAtPlayerGoal(this, Player.class, 4f));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
         //targetSelector.OwnerHurtByTargetGoal 1
         //targetSelector.OwnerHurtTargetGoal 2
@@ -165,15 +180,6 @@ public class GlaiveMaidenEntity extends TamableAnimal {
     public void setCollarColor(DyeColor pCollarColor) {
         this.entityData.set(DATA_COLLAR_COLOR, pCollarColor.getId());
     }*/
-
-    @Override
-    public void tick() {
-        super.tick();
-
-        if(this.level().isClientSide()) {
-            setupAnimationStates();
-        }
-    }
 
     public void die(DamageSource pCause) {
         super.die(pCause);
@@ -282,12 +288,6 @@ public class GlaiveMaidenEntity extends TamableAnimal {
          return super.mobInteract(pPlayer, pHand);
       }
    }*/
-
-    //TODO: changer pour un autre type de nourriture
-    public boolean isFood(ItemStack pStack) {
-        Item item = pStack.getItem();
-        return item.isEdible() && pStack.getFoodProperties(this).isMeat();
-    }
 
     //TODO: Choisir ou créer un bloc
     /*public static boolean checkWolfSpawnRules(EntityType<Wolf> pWolf, LevelAccessor pLevel, MobSpawnType pSpawnType, BlockPos pPos, RandomSource pRandom) {
