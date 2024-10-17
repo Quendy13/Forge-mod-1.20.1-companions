@@ -18,6 +18,9 @@ public class ModCreativeModTabs {
                     .icon(() -> new ItemStack(ModBlocks.ROSE.get()))
                     .title(Component.translatable("creativetab.companions_tab"))
                     .displayItems((pParameters, pOutput) -> {
+                        pOutput.accept(ModItems.APRON.get());
+                        pOutput.accept(ModItems.CROWN.get());
+
                         pOutput.accept(ModItems.PRISTINE_BLADE.get());
 
                         pOutput.accept(ModBlocks.ROSE.get());

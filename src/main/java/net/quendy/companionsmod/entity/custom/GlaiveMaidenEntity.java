@@ -1,9 +1,13 @@
 package net.quendy.companionsmod.entity.custom;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -13,28 +17,43 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.quendy.companionsmod.entity.ModEntities;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.quendy.companionsmod.item.ModItems;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class GlaiveMaidenEntity extends TamableAnimal {
+import java.util.*;
+
+public class GlaiveMaidenEntity extends TamableAnimal implements Map {
+    private Item previousSkinItem = Items.AIR;
+    private static final Map<Item, Integer> ITEM_TO_SKIN_TYPE = new HashMap<>();
+
+    static {
+        ITEM_TO_SKIN_TYPE.put(Items.STICK, 0); // Default skin //TODO: changer pour mettre un item custom pour le default skin
+        ITEM_TO_SKIN_TYPE.put(ModItems.APRON.get(), 1); // Apron skin
+        ITEM_TO_SKIN_TYPE.put(ModItems.CROWN.get(), 2); // Crown skin
+    }
+    private static final EntityDataAccessor<Boolean> ATTACKING =
+            SynchedEntityData.defineId(GlaiveMaidenEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> SKIN_TYPE =
+            SynchedEntityData.defineId(GlaiveMaidenEntity.class, EntityDataSerializers.INT);
+    private static final float START_HEALTH = 8.0F;
+    private static final float TAME_HEALTH = 20.0F;
+
     public GlaiveMaidenEntity(EntityType<? extends TamableAnimal> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         this.setTame(false);
     }
 
-    private static final EntityDataAccessor<Boolean> ATTACKING =
-            SynchedEntityData.defineId(GlaiveMaidenEntity.class, EntityDataSerializers.BOOLEAN);
-    private static final float START_HEALTH = 8.0F;
-    private static final float TAME_HEALTH = 20.0F;
-
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
-
     //public final AnimationState attackAnimationState = new AnimationState();
     //public int attackAnimationTimeout = 0;
 
@@ -90,12 +109,7 @@ public class GlaiveMaidenEntity extends TamableAnimal {
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel pLevel, AgeableMob pOtherParent) {
-        return ModEntities.GLAIVE_MAIDEN.get().create(pLevel);
-    }
-
-    //TODO: changer pour un autre type de nourriture
-    public boolean isFood(ItemStack pStack) {
-        return pStack.is(Items.SUGAR);
+        return null;
     }
 
     @Override
@@ -128,6 +142,51 @@ public class GlaiveMaidenEntity extends TamableAnimal {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(ATTACKING, false);
+        this.entityData.define(SKIN_TYPE, 0);
+    }
+
+    //Méthode relatives aux skins
+    public void setSkinType(int type) {
+        this.entityData.set(SKIN_TYPE, type);
+    }
+
+    //Méthode relatives aux skins
+    public int getSkinType() {
+        return this.entityData.get(SKIN_TYPE);
+    }
+
+    //Méthode relatives aux skins
+    private boolean isValidSkinItem(Item item) {
+        return ITEM_TO_SKIN_TYPE.containsKey(item);
+    }
+
+    //Méthode relatives aux skins
+    private int getSkinTypeForItem(Item item) {
+        return ITEM_TO_SKIN_TYPE.getOrDefault(item, 0);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag pCompound) {
+        super.addAdditionalSaveData(pCompound);
+        pCompound.putInt("SkinType", this.getSkinType());
+
+        ResourceLocation itemKey = ForgeRegistries.ITEMS.getKey(this.previousSkinItem);
+        if (itemKey != null) {
+            pCompound.putString("PreviousSkinItem", itemKey.toString());
+        }
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag pCompound) {
+        super.readAdditionalSaveData(pCompound);
+        if (pCompound.contains("SkinType")) {
+            this.setSkinType(pCompound.getInt("SkinType"));
+        }
+
+        if (pCompound.contains("PreviousSkinItem")) {
+            ResourceLocation itemKey = new ResourceLocation(pCompound.getString("PreviousSkinItem"));
+            this.previousSkinItem = ForgeRegistries.ITEMS.getValue(itemKey);
+        }
     }
 
     //TODO : custom sounds
@@ -223,9 +282,31 @@ public class GlaiveMaidenEntity extends TamableAnimal {
         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(4.0D);
     }
 
-    //TODO: regarder ce que ça fait, et garder si c'est utile
-    /*public InteractionResult mobInteract(Player pPlayer, InteractionHand pHand) {
-      ItemStack itemstack = pPlayer.getItemInHand(pHand);
+    public InteractionResult mobInteract(Player pPlayer, InteractionHand pHand) {
+        ItemStack itemstack = pPlayer.getItemInHand(pHand);
+        Item item = itemstack.getItem();
+
+        if (this.level().isClientSide) {
+            return InteractionResult.CONSUME;
+        } else {
+            if (isValidSkinItem(item)) {
+                if (this.previousSkinItem != Items.AIR) {
+                    ItemEntity droppedItem = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(),
+                            new ItemStack(this.previousSkinItem));
+                    this.level().addFreshEntity(droppedItem);
+                }
+
+                this.setSkinType(getSkinTypeForItem(item));
+                this.previousSkinItem = item;
+                itemstack.shrink(1);
+
+                return InteractionResult.SUCCESS;
+            }
+        }
+
+        return super.mobInteract(pPlayer, pHand);
+
+      /*ItemStack itemstack = pPlayer.getItemInHand(pHand);
       Item item = itemstack.getItem();
       if (this.level().isClientSide) {
          boolean flag = this.isOwnedBy(pPlayer) || this.isTame() || itemstack.is(Items.BONE) && !this.isTame() && !this.isAngry();
@@ -285,12 +366,72 @@ public class GlaiveMaidenEntity extends TamableAnimal {
 
          return InteractionResult.SUCCESS;
       } else {
-         return super.mobInteract(pPlayer, pHand);
+         return super.mobInteract(pPlayer, pHand);*/
       }
-   }*/
 
     //TODO: Choisir ou créer un bloc
     /*public static boolean checkWolfSpawnRules(EntityType<Wolf> pWolf, LevelAccessor pLevel, MobSpawnType pSpawnType, BlockPos pPos, RandomSource pRandom) {
       return pLevel.getBlockState(pPos.below()).is(BlockTags.WOLVES_SPAWNABLE_ON) && isBrightEnoughToSpawn(pLevel, pPos);
    }*/
+
+    //Cela ne sert à rien (pour l'instant du moins)
+    @Override
+    public int size() {
+        return 0;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        return false;
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+        return false;
+    }
+
+    @Override
+    public Object get(Object key) {
+        return null;
+    }
+
+    @Override
+    public @Nullable Object put(Object key, Object value) {
+        return null;
+    }
+
+    @Override
+    public Object remove(Object key) {
+        return null;
+    }
+
+    @Override
+    public void putAll(@NotNull Map m) {
+
+    }
+
+    @Override
+    public void clear() {
+
+    }
+
+    @Override
+    public @NotNull Set keySet() {
+        return Set.of();
+    }
+
+    @Override
+    public @NotNull Collection values() {
+        return List.of();
+    }
+
+    @Override
+    public @NotNull Set<Entry> entrySet() {
+        return Set.of();
+    }
 }

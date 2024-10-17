@@ -12,6 +12,11 @@ import net.quendy.companionsmod.entity.ModEntities;
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CompanionsMod.MOD_ID);
 
+    public static final RegistryObject<Item> APRON = ITEMS.register("apron",
+            () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> CROWN = ITEMS.register("crown",
+            () -> new Item(new Item.Properties()));
+
     public static final RegistryObject<Item> PRISTINE_BLADE = ITEMS.register("pristine_blade",
             () -> new SwordItem(ModToolTiers.PRISTINE, 4, 1f, new Item.Properties()));
 
