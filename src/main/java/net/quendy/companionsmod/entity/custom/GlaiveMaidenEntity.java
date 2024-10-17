@@ -216,30 +216,6 @@ public class GlaiveMaidenEntity extends TamableAnimal implements Map {
         return 0.4F;
     }*/
 
-    //TODO : different skins
-    /*public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
-        pCompound.putByte("CollarColor", (byte)this.getCollarColor().getId());
-        this.addPersistentAngerSaveData(pCompound);
-    }
-
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        if (pCompound.contains("CollarColor", 99)) {
-            this.setCollarColor(DyeColor.byId(pCompound.getInt("CollarColor")));
-        }
-
-        this.readPersistentAngerSaveData(this.level(), pCompound);
-    }
-
-    public DyeColor getCollarColor() {
-        return DyeColor.byId(this.entityData.get(DATA_COLLAR_COLOR));
-    }
-
-    public void setCollarColor(DyeColor pCollarColor) {
-        this.entityData.set(DATA_COLLAR_COLOR, pCollarColor.getId());
-    }*/
-
     public void die(DamageSource pCause) {
         super.die(pCause);
     }
@@ -369,7 +345,7 @@ public class GlaiveMaidenEntity extends TamableAnimal implements Map {
          return super.mobInteract(pPlayer, pHand);*/
       }
 
-    //TODO: Choisir ou créer un bloc
+    //TODO: Choisir ou créer un bloc pour spwan naturellement
     /*public static boolean checkWolfSpawnRules(EntityType<Wolf> pWolf, LevelAccessor pLevel, MobSpawnType pSpawnType, BlockPos pPos, RandomSource pRandom) {
       return pLevel.getBlockState(pPos.below()).is(BlockTags.WOLVES_SPAWNABLE_ON) && isBrightEnoughToSpawn(pLevel, pPos);
    }*/
