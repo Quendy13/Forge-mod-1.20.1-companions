@@ -233,7 +233,7 @@ public class AbstractMaidenEntity extends TamableAnimal {
             return InteractionResult.CONSUME;
         } else {
             if (isValidSkinItem(item)) {
-                if (this.previousSkinItem != Items.AIR) {
+                if (this.previousSkinItem != Items.AIR && this.previousSkinItem != Items.STICK) {
                     ItemEntity droppedItem = new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(),
                             new ItemStack(this.previousSkinItem));
                     this.level().addFreshEntity(droppedItem);
@@ -241,7 +241,10 @@ public class AbstractMaidenEntity extends TamableAnimal {
 
                 this.setSkinType(getSkinTypeForItem(item));
                 this.previousSkinItem = item;
-                itemstack.shrink(1);
+
+                if (getSkinTypeForItem(item) != 0) {
+                    itemstack.shrink(1);
+                }
 
                 return InteractionResult.SUCCESS;
             }
